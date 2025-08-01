@@ -1,0 +1,15 @@
+{
+  "name": "Productivity App",
+  "short_name": "Tasks+Timer",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#0066ff",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
