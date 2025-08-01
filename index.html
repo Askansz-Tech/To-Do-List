@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Productivity App</title>
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --card: #ffffff;
+      --text: #212529;
+      --accent: #0d6efd;
+      --low: #6c757d;
+      --medium: #ffc107;
+      --high: #dc3545;
+    }
+
+    [data-theme="dark"] {
+      --bg: #121212;
+      --card: #1e1e2e;
+      --text: #f1f1f1;
+      --accent: #0dcaf0;
+      --low: #868e96;
+      --medium: #f1c40f;
+      --high: #e74c3c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    header {
+      background-color: var(--accent);
+      color: white;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    #themeToggle {
+      background: transparent;
+      color: white;
+      font-size: 1.2rem;
+      border: none;
+      cursor: pointer;
+    }
+
+    nav {
+      display: flex;
+      background: var(--card);
+      border-bottom: 1px solid #ccc;
+    }
+
+    nav button {
+      flex: 1;
+      padding: 1rem;
+      font-size: 1rem;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--text);
+      border-bottom: 2px solid transparent;
+    }
+
+    nav button.active {
+      border-bottom: 2px solid var(--accent);
+      font-weight: bold;
+    }
+
+    main > section {
+      display: none;
+      padding: 1.5rem;
+    }
+
+    main > section.active {
+      display: block;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    input, select, textarea {
+      padding: 0.5rem;
+      font-size: 1rem;
+      width: 100%;
+    }
+
+    button {
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 0.5rem;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .low { color: var(--low); }
+    .medium { color: var(--medium); }
+    .high { color: var(--high); }
+
+    .settings label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .toggle {
+      margin-left: 10px;
+    }
+
+    #timerDisplay {
+      font-size: 2.4rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    textarea {
+      height: 150px;
+      resize: vertical;
+    }
+
+    @media (max-width: 600px) {
+      nav button {
+        font-size: 0.9rem;
+        padding: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Productivity App</h1>
+    <button id="themeToggle">🌙</button>
+  </header>
+
+  <nav>
+    <button class="active" onclick="showTab('todo')">To-Do</button>
+    <button onclick="showTab('timer')">Timer</button>
+    <button onclick="showTab('notes')">Notes</button>
+    <button onclick="showTab('settings')">Settings</button>
+  </nav>
+
+  <main>
+    <section id="todo" class="active">
+      <div class="card">
+        <h2>To-Do List</h2>
+        <div class="input-group">
+          <input type="text" id="taskInput" placeholder="New Task" />
+          <select id="priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+          <button onclick="addTask()">Add</button>
+        </div>
+        <ul id="taskList"></ul>
+      </div>
+    </section>
+
+    <section id="timer">
+      <div class="card">
+        <h2>Pomodoro Timer</h2>
+        <div id="timerDisplay">25:00</div>
+        <div class="center">
+          <button onclick="startTimer()">Start</button>
+          <button onclick="pauseTimer()">Pause</button>
+          <button onclick="resetTimer()">Reset</button>
+        </div>
+        <div class="center">
+          <p>Session: <strong id="sessionType">Work</strong></p>
+          <p>Completed: <span id="completedSessions">0</span></p>
+        </div>
+        <div class="input-group">
+          <input type="number" id="workDuration" min="1" max="60" value="25"/> Work Min
+          <input type="number" id="breakDuration" min="1" max="30" value="5"/> Break Min
+        </div>
+      </div>
+    </section>
+
+    <section id="notes">
+      <div class="card">
+        <h2>Quick Notes</h2>
+        <textarea id="notesArea" placeholder="Write something..."></textarea>
+        <div class="center">
+          <button onclick="saveNotes()">Save Notes</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="settings">
+      <div class="card settings">
+        <h2>Settings</h2>
+        <label>Enable Notifications
+          <input type="checkbox" id="notifyToggle" class="toggle"/>
+        </label>
+        <label>Enable Sound
+          <input type="checkbox" id="soundToggle" class="toggle"/>
+        </label>
+        <label>Enable Vibration
+          <input type="checkbox" id="vibrateToggle" class="toggle"/>
+        </label>
+        <div class="center">
+          <button onclick="testNotification()">Test Notification</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Tab switching
+    function showTab(id) {
+      document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('main > section').forEach(sec => sec.classList.remove('active'));
+      document.querySelector(`#${id}`).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // Theme
+    const body = document.body;
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.onclick = () => {
+      const theme = body.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      body.setAttribute("data-theme", theme);
+    };
+
+    // To-do List
+    function addTask() {
+      const taskInput = document.getElementById("taskInput");
+      const priority = document.getElementById("priority").value;
+      const taskList = document.getElementById("taskList");
+
+      if (taskInput.value.trim() === "") return;
+      const li = document.createElement("li");
+      li.innerHTML = `<span class="${priority}">${taskInput.value}</span>
+                      <button onclick="this.parentElement.remove()">❌</button>`;
+      taskList.appendChild(li);
+      taskInput.value = "";
+    }
+
+    // Timer
+    let timer = null;
+    let sessionType = "Work";
+    let sessionCount = 0;
+    let isPaused = true;
+    let timeLeft = 25 * 60;
+
+    function updateDisplay() {
+      const mins = Math.floor(timeLeft / 60);
+      const secs = timeLeft % 60;
+      document.getElementById("timerDisplay").textContent =
+        `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      document.getElementById("sessionType").textContent = sessionType;
+      document.getElementById("completedSessions").textContent = sessionCount;
+    }
+
+    function startTimer() {
+      if (!isPaused) return;
+      isPaused = false;
+      timer = setInterval(() => {
+        if (timeLeft > 0) {
+          timeLeft--;
+          updateDisplay();
+        } else {
+          completeSession();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      isPaused = true;
+      clearInterval(timer);
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      setInitialTime();
+      updateDisplay();
+    }
+
+    function completeSession() {
+      notify("Session complete! Switching...");
+      if (sessionType === "Work") {
+        sessionType = "Break";
+        timeLeft = parseInt(document.getElementById("breakDuration").value) * 60;
+        sessionCount++;
+      } else {
+        sessionType = "Work";
+        timeLeft = parseInt(document.getElementById("workDuration").value) * 60;
+      }
+      updateDisplay();
+    }
+
+    function setInitialTime() {
+      sessionType = "Work";
+      timeLeft = parseInt(document.getElementById("workDuration").value) * 60;
+    }
+
+    // Notifications
+    const notifyToggle = document.getElementById("notifyToggle");
+    const soundToggle = document.getElementById("soundToggle");
+    const vibrateToggle = document.getElementById("vibrateToggle");
+
+    notifyToggle.checked = JSON.parse(localStorage.getItem("notify")) ?? true;
+    soundToggle.checked = JSON.parse(localStorage.getItem("sound")) ?? true;
+    vibrateToggle.checked = JSON.parse(localStorage.getItem("vibrate")) ?? true;
+
+    notifyToggle.onchange = () => localStorage.setItem("notify", notifyToggle.checked);
+    soundToggle.onchange = () => localStorage.setItem("sound", soundToggle.checked);
+    vibrateToggle.onchange = () => localStorage.setItem("vibrate", vibrateToggle.checked);
+
+    function notify(msg) {
+      if (notifyToggle.checked && Notification.permission === "granted") {
+        new Notification("⏰ Pomodoro", { body: msg });
+      } else if (notifyToggle.checked) {
+        Notification.requestPermission();
+      }
+      if (soundToggle.checked) {
+        new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg").play();
+      }
+      if (vibrateToggle.checked && navigator.vibrate) {
+        navigator.vibrate(300);
+      }
+    }
+
+    function testNotification() {
+      notify("This is a test alert.");
+    }
+
+    // Notes
+    const notesArea = document.getElementById("notesArea");
+    notesArea.value = localStorage.getItem("notes") || "";
+
+    function saveNotes() {
+      localStorage.setItem("notes", notesArea.value);
+      alert("Notes saved!");
+    }
+
+    // Init
+    setInitialTime();
+    updateDisplay();
+  </script>
+</body>
+</html>
