@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Productivity App</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --text: #333;
+      --accent: #0066ff;
+      --low: #bbb;
+      --medium: #ffc107;
+      --high: #ff5252;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1e1e2e;
+      --card: #2b2b3c;
+      --text: #f0f0f0;
+      --accent: #00aaff;
+      --low: #555;
+      --medium: #ffa500;
+      --high: #ff3b3b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    header {
+      background-color: var(--accent);
+      color: white;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    #themeToggle {
+      background: transparent;
+      color: white;
+      font-size: 1.2rem;
+      border: none;
+      cursor: pointer;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: auto;
+      padding: 1.5rem;
+    }
+
+    .grid {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .grid {
+        flex-direction: row;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 1.5rem;
+      flex: 1;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .input-group input,
+    .input-group select {
+      flex: 1;
+      padding: 0.5rem;
+    }
+
+    .input-group button {
+      padding: 0.5rem 1rem;
+      background: var(--accent);
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 0.5rem;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .low { color: var(--low); }
+    .medium { color: var(--medium); }
+    .high { color: var(--high); }
+
+    .timer-controls button {
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    #timerDisplay {
+      font-size: 2.5rem;
+      text-align: center;
+      margin: 1rem 0;
+    }
+
+    /* Settings */
+    #settingsBtn {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      padding: 0.6rem 0.9rem;
+      border: none;
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.hidden {
+      display: none;
+    }
+
+    .modal-content {
+      background: var(--card);
+      padding: 2rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Productivity App</h1>
+    <button id="themeToggle" title="Toggle Dark Mode">🌙</button>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section class="card">
+        <h2>To-Do List</h2>
+        <div class="input-group">
+          <input type="text" id="taskInput" placeholder="Add a task..." />
+          <select id="priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+          <button onclick="addTask()">Add</button>
+        </div>
+        <ul id="taskList"></ul>
+      </section>
+
+      <section class="card">
+        <h2>Pomodoro Timer</h2>
+        <div id="timerDisplay">25:00</div>
+        <div class="timer-controls">
+          <button onclick="startTimer()">Start</button>
+          <button onclick="pauseTimer()">Pause</button>
+          <button onclick="resetTimer()">Reset</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Settings</h2>
+        <p><strong>Notifications:</strong> <span id="notificationStatus">Checking...</span></p>
+        <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
+          <input type="checkbox" id="notificationsEnabled"> Enable Pomodoro Alerts
+        </label>
+        <button onclick="requestNotification()">Allow Notifications</button>
+        <button onclick="testNotification()">Test Notification 🔔</button>
+        <hr style="margin: 1rem 0;">
+        <button onclick="closeSettings()">Close</button>
+      </div>
+    </div>
+
+    <button id="settingsBtn" onclick="openSettings()">⚙️ Settings</button>
+  </main>
+
+  <script>
+    // THEME TOGGLE
+    const body = document.body;
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.onclick = () => {
+      body.dataset.theme = body.dataset.theme === "dark" ? "" : "dark";
+    };
+
+    // TO-DO LIST
+    function addTask() {
+      const taskInput = document.getElementById("taskInput");
+      const priority = document.getElementById("priority").value;
+      const taskList = document.getElementById("taskList");
+
+      if (taskInput.value.trim() === "") return;
+
+      const li = document.createElement("li");
+      li.innerHTML = `<span class="${priority}">${taskInput.value}</span>
+                      <button onclick="this.parentElement.remove()">❌</button>`;
+      taskList.appendChild(li);
+      taskInput.value = "";
+    }
+
+    // TIMER
+    let time = 1500;
+    let timerInterval;
+    let isPaused = true;
+
+    function updateTimerDisplay() {
+      const display = document.getElementById("timerDisplay");
+      const minutes = Math.floor(time / 60);
+      const seconds = time % 60;
+      display.textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    }
+
+    function startTimer() {
+      if (!isPaused) return;
+      isPaused = false;
+      timerInterval = setInterval(() => {
+        if (!isPaused) {
+          if (time > 0) {
+            time--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerInterval);
+            notify("Time's up! Take a short break.");
+            time = 1500;
+            updateTimerDisplay();
+          }
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      isPaused = true;
+      clearInterval(timerInterval);
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      time = 1500;
+      updateTimerDisplay();
+    }
+
+    // NOTIFICATIONS
+    let notificationsEnabled = JSON.parse(localStorage.getItem('pomodoroNotify')) ?? true;
+    document.getElementById("notificationsEnabled").checked = notificationsEnabled;
+
+    function notify(message) {
+      if (!notificationsEnabled) return;
+
+      if (Notification.permission === 'granted') {
+        new Notification('⏰ Pomodoro Timer', { body: message });
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            new Notification('⏰ Pomodoro Timer', { body: message });
+          }
+        });
+      }
+    }
+
+    function openSettings() {
+      document.getElementById("settingsModal").classList.remove("hidden");
+      updateNotificationStatus();
+    }
+
+    function closeSettings() {
+      document.getElementById("settingsModal").classList.add("hidden");
+      notificationsEnabled = document.getElementById("notificationsEnabled").checked;
+      localStorage.setItem("pomodoroNotify", JSON.stringify(notificationsEnabled));
+    }
+
+    function updateNotificationStatus() {
+      const status = Notification.permission;
+      document.getElementById("notificationStatus").textContent =
+        status.charAt(0).toUpperCase() + status.slice(1);
+    }
+
+    function requestNotification() {
+      Notification.requestPermission().then(updateNotificationStatus);
+    }
+
+    function testNotification() {
+      notify("This is a test notification.");
+    }
+
+    updateTimerDisplay();
+  </script>
+</body>
+</html>
