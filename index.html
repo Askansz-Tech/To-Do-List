@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Productivity App</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Productivity App</h1>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>To-Do List</h2>
+      <div class="input-group">
+        <input type="text" id="taskInput" placeholder="Add a task..." />
+        <button onclick="addTask()">Add</button>
+      </div>
+      <ul id="taskList"></ul>
+    </section>
+
+    <section class="card">
+      <h2>Pomodoro Timer</h2>
+      <div id="timeDisplay">25:00</div>
+      <div class="btn-group">
+        <button onclick="startTimer()">Start</button>
+        <button onclick="resetTimer()">Reset</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
